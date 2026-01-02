@@ -1,0 +1,208 @@
+# Reglas del Proyecto - Vencedora Despachos
+
+## Stack Tecnológico
+- **Astro v4+**: Framework web moderno para construir sitios rápidos
+  - Documentación: https://docs.astro.build/en/getting-started/
+  - Arquitectura de islas para máximo rendimiento
+  - Generación estática para PWA offline
+- **HTML5**: Estructura semántica y accesible (generada por Astro)
+- **CSS**: Solo para configuraciones personalizadas (Tailwind maneja los estilos)
+- **JavaScript (Vanilla)**: Para interactividad y lógica de negocio (islas de Astro)
+- **IndexedDB**: Base de datos del lado del cliente para almacenamiento local persistente
+
+## Framework de Estilos
+- **Tailwind CSS**: Framework utility-first para todos los estilos
+- **Flowbite**: Librería de componentes UI basada en Tailwind CSS
+  - URL: https://flowbite.com/docs/getting-started/quickstart/
+  - **IMPORTANTE**: Todos los componentes UI deben ser de Flowbite para mantener consistencia y armonía en el diseño
+  - Usar componentes de Flowbite en lugar de crear componentes personalizados cuando sea posible
+
+## Configuración de Tema
+- **Dark Theme**: Siempre configurado y activo por defecto
+- Usar `dark:` de Tailwind para variaciones cuando sea necesario
+- La aplicación debe funcionar correctamente en modo oscuro
+
+## Tipografía
+- **Títulos**: Fuente Montserrat (`font-title` en Tailwind)
+- **Texto/Contenido**: Fuente Roboto (`font-body` en Tailwind)
+- Aplicar estas clases consistentemente en todo el proyecto
+
+## Buenas Prácticas
+
+### Código
+- **Evitar duplicidad**: Crear funciones reutilizables y componentes compartidos
+- **DRY (Don't Repeat Yourself)**: Extraer lógica común a funciones/utilities
+- **Código limpio**: Nombres descriptivos, comentarios cuando sea necesario
+- **Estructura modular**: Organizar código en módulos/funciones
+- **Idioma del código**: 
+  - ✅ **Código en inglés**: Variables, funciones, tipos, interfaces, propiedades, nombres de archivos
+  - ✅ **Textos en español**: Mensajes al usuario, contenido visible, labels, placeholders, títulos
+  - ✅ **Comentarios**: Pueden estar en español o inglés según el contexto
+  - **Ejemplo**:
+    ```typescript
+    // ✅ CORRECTO
+    interface User {
+      id: number;
+      name: string;
+      email: string;
+    }
+    
+    function getUserById(id: number): User {
+      // Lógica aquí
+    }
+    
+    // En el HTML/Astro
+    <h1>Bienvenido</h1>
+    <button>Iniciar Sesión</button>
+    
+    // ❌ INCORRECTO
+    interface Usuario {
+      id: number;
+      nombre: string;
+      correo: string;
+    }
+    
+    function obtenerUsuarioPorId(id: number): Usuario {
+      // ...
+    }
+    ```
+
+### Componentes Flowbite
+- Siempre revisar la documentación de Flowbite antes de crear componentes personalizados
+- Usar los componentes de Flowbite con sus data-attributes o JavaScript API
+- Mantener consistencia visual usando los componentes de Flowbite
+
+### Estilos
+- Usar clases de Tailwind en lugar de CSS personalizado
+- Seguir el sistema de diseño de Flowbite
+- Mantener consistencia en espaciados, colores y tamaños
+
+### HTML
+- Usar elementos semánticos
+- Mantener estructura accesible (ARIA cuando sea necesario)
+- Validar HTML
+
+### JavaScript y Astro
+- Usar funciones puras cuando sea posible
+- Manejar eventos de forma eficiente
+- Inicializar componentes de Flowbite correctamente
+- Usar módulos ES6 para organización del código
+- Inicializar IndexedDB al cargar la aplicación
+- **Usar componentes Astro (.astro)** para páginas y layouts
+- **Scripts en componentes Astro** usando etiquetas `<script>` (se procesan automáticamente)
+- **Islas de Astro** para interactividad cuando sea necesario
+- **Routing automático**: Archivos en `src/pages/` generan rutas automáticamente
+
+### TypeScript y Tipado
+- **Siempre usar interfaces** para definir tipos y estructuras de datos
+- Crear interfaces para todos los objetos, funciones y datos complejos
+- Mantener tipado coherente en todo el proyecto
+- Usar TypeScript cuando sea posible (Astro soporta `.ts` y `.tsx`)
+- Definir interfaces en archivos separados cuando sean compartidas
+- **IMPORTANTE**: 
+  - ✅ **Nombres de interfaces, tipos y propiedades en inglés**
+  - ✅ **Comentarios JSDoc pueden estar en español o inglés**
+  - Ejemplo de estructura:
+    ```typescript
+    // src/types/index.ts
+    /**
+     * Usuario del sistema
+     */
+    export interface User {
+      id: number;
+      email: string;
+      name: string;
+      createdAt: Date;
+    }
+    
+    /**
+     * Despacho - Entidad principal
+     */
+    export interface Despacho {
+      id: number;
+      fecha: Date;  // ✅ Propiedad en español si es término de dominio
+      cliente: string;
+      estado: 'pending' | 'completed' | 'cancelled'; // ✅ Valores en inglés
+    }
+    ```
+- **IMPORTANTE**: Preferir interfaces sobre tipos cuando sea posible
+- Documentar interfaces con comentarios JSDoc cuando sea necesario
+
+## Estructura de Carpetas Recomendada
+```
+/
+├── src/
+│   ├── layouts/               # Layouts de Astro
+│   │   └── BaseLayout.astro   # Layout base
+│   ├── pages/                 # Páginas de Astro (routing automático)
+│   │   ├── index.astro        # Página principal (/)
+│   │   └── login.astro       # Página de login (/login)
+│   ├── js/
+│   │   ├── components/        # Componentes JavaScript reutilizables
+│   │   ├── utils/             # Funciones utilitarias
+│   │   │   ├── indexedDB.js   # Utilidades para IndexedDB
+│   │   │   └── serviceWorker.js # Utilidades para Service Worker
+│   │   └── main.js            # Scripts principales (si es necesario)
+│   ├── types/                 # Interfaces y tipos TypeScript
+│   │   └── index.ts           # Interfaces compartidas del proyecto
+│   ├── fonts/                 # Fuentes locales
+│   └── assets/                # Recursos estáticos
+├── public/                    # Archivos públicos (se copian tal cual)
+│   └── manifest.json          # Manifest (opcional)
+├── astro.config.mjs           # Configuración de Astro
+├── package.json
+├── tailwind.config.js
+└── postcss.config.js
+```
+
+## Inicialización de Flowbite
+- **Importación directa**: Flowbite se importa desde `node_modules` usando `import 'flowbite'`
+- **Archivo**: `src/js/init-flowbite.ts` importa Flowbite automáticamente
+- **Layout**: BaseLayout.astro incluye el script que importa init-flowbite
+- **Inicialización automática**: Los componentes con data-attributes se inicializan automáticamente
+- **Inicialización manual**: Si es necesario, usar `import { initFlowbite } from 'flowbite'`
+
+## Recursos Locales (Sin Dependencia de Internet)
+
+### Flowbite
+- **Importación directa**: Se importa directamente desde `node_modules` usando `import 'flowbite'`
+- **Astro maneja automáticamente**: No requiere scripts de copia
+- **Uso**: Importar en componentes Astro con `<script>import 'flowbite';</script>`
+- **IMPORTANTE**: No usar CDN, siempre importar desde node_modules
+
+### Fuentes
+- **Ubicación**: `src/fonts/`
+- **Fuentes**: Montserrat y Roboto almacenadas localmente
+- **Formato**: Archivos `.woff2` para mejor compresión
+- **Definiciones**: `src/fonts/fonts.css` con @font-face
+- **Descarga**: Manual desde Google Web Fonts Helper (ver `src/fonts/README.md`)
+- **IMPORTANTE**: Las fuentes deben descargarse manualmente la primera vez
+
+## Almacenamiento y Offline
+
+### IndexedDB
+- **Base de datos local**: Usar IndexedDB para almacenar datos persistentes
+- **Utilidades**: Usar `src/js/utils/indexedDB.js` para operaciones CRUD
+- **Object Stores**: Configurar stores en `indexedDB.js` según necesidades
+- **Operaciones**: Usar funciones exportadas (`db.add`, `db.get`, `db.getAll`, `db.update`, `db.delete`)
+- **Inicialización**: La DB se inicializa automáticamente en `main.js`
+
+### Recursos Locales
+- **Sin CDN**: Todas las dependencias están en `node_modules` y se copian localmente
+- **Flowbite**: Se copia desde `node_modules` a `public/src/js/vendor/` automáticamente
+- **Fuentes**: Almacenadas localmente en `src/fonts/`
+- **Aplicación local**: Funciona completamente en local sin necesidad de conexión a internet
+
+## Recordatorios Importantes
+1. ✅ Siempre usar componentes de Flowbite para UI
+2. ✅ Dark theme siempre activo
+3. ✅ Montserrat para títulos, Roboto para texto
+4. ✅ Evitar código duplicado
+5. ✅ Seguir buenas prácticas de desarrollo
+6. ✅ Usar IndexedDB para almacenamiento local persistente
+7. ✅ **Siempre usar interfaces** para tipado coherente y estructuras de datos
+8. ✅ Definir interfaces en `src/types/` para compartirlas en todo el proyecto
+9. ✅ **Código en inglés**: Variables, funciones, tipos, interfaces, propiedades
+10. ✅ **Textos en español**: Mensajes al usuario, contenido visible, labels, placeholders
+11. ✅ **Recursos locales**: Todas las dependencias están en `node_modules` y se copian localmente
+
