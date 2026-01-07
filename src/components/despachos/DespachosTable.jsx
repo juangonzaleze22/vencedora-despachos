@@ -1,25 +1,10 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { formatVenezuelaDate, formatVenezuelaTime } from '../../js/utils/dateUtils';
+import { formatTime12h, formatDate } from '../../js/utils/dateUtils';
+
 
 function DespachosTable({ despachos, currentPage, totalPages, onPageChange, onView, onEdit, onDelete }) {
     const { user } = useAuth();
-
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        const fecha = formatVenezuelaDate(dateString);
-        const date = new Date(fecha + 'T00:00:00');
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
-
-    const formatTime = (dateString) => {
-        if (!dateString) return 'N/A';
-        return formatVenezuelaTime(dateString);
-    };
 
     const getStatusBadge = (status) => {
         const statusConfig = {
@@ -71,7 +56,7 @@ function DespachosTable({ despachos, currentPage, totalPages, onPageChange, onVi
                                         {formatDate(despacho.fecha)}
                                     </td>
                                     <td className="px-6 py-4 font-body">
-                                        {formatTime(despacho.fecha)}
+                                        {formatTime12h(despacho.fecha)}
                                     </td>
                                     <td className="px-6 py-4">
                                         {getStatusBadge(despacho.estado)}

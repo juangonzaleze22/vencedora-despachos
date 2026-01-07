@@ -65,14 +65,18 @@ router.get('/search', (req, res) => {
         // Filtro por rango de fechas
         if (fechaInicio) {
             query += ' AND fecha >= ?';
-            params.push(fechaInicio);
+            // Ensure we catch everything from the start of the day
+            params.push(`${fechaInicio}T00:00:00.000Z`);
         }
         if (fechaFin) {
             query += ' AND fecha <= ?';
-            params.push(fechaFin);
+            // Ensure we catch everything until the end of the day
+            params.push(`${fechaFin}T23:59:59.999Z`);
         }
 
         query += ' ORDER BY fecha DESC, createdAt DESC';
+
+
 
         const despachos = db.prepare(query).all(...params);
 

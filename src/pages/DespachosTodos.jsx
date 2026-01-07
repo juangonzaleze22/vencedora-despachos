@@ -117,7 +117,6 @@ function DespachosTodos() {
 
         try {
             const result = await despachosService.delete(id);
-           /*  console.log("Despacho eliminado exitosamente", result); */
             loadDespachos();
         } catch (error) {
             console.error('Error al eliminar despacho:', error);

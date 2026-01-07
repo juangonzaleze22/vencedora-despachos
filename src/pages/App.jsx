@@ -6,7 +6,6 @@ import Login from './Login';
 import DashboardDespachador from './DashboardDespachador';
 import DashboardSupervisor from './DashboardSupervisor';
 import DespachoNuevo from './DespachoNuevo';
-import DespachoEditar from './DespachoEditar';
 import DespachosTodos from './DespachosTodos';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 

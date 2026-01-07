@@ -66,22 +66,22 @@ function Alert({ type = 'info', message, dismissible = true, onDismiss }) {
     const config = typeConfig[type] || typeConfig.info;
 
     return (
-        <div className={`fixed top-4 right-4 z-[200] shadow-lg min-w-[300px] flex items-center p-4 mb-4 border-l-4 ${config.borderColor} ${config.bgColor} rounded-lg`} role="alert">
+        <div className={`fixed bottom-10 left-1/2 transform -translate-x-1/2 z-[200] shadow-2xl min-w-[400px] max-w-2xl flex items-center p-6 mb-4 border-l-8 ${config.borderColor} ${config.bgColor} rounded-xl animate-bounce-in`} role="alert">
             <div className={`flex-shrink-0 ${config.textColor}`}>
-                {config.icon}
+                {React.cloneElement(config.icon, { className: "w-8 h-8" })}
             </div>
-            <div className={`ml-3 text-sm font-body ${config.textColor}`}>
+            <div className={`ml-4 text-lg font-medium font-body ${config.textColor}`}>
                 {message}
             </div>
             {dismissible && (
                 <button
                     type="button"
-                    className={`ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8 ${config.textColor} hover:bg-gray-200 dark:hover:bg-gray-700`}
+                    className={`ml-auto -mx-2 -my-2 rounded-lg focus:ring-2 p-2 inline-flex h-10 w-10 ${config.textColor} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
                     onClick={handleDismiss}
                     aria-label="Cerrar"
                 >
                     <span className="sr-only">Cerrar</span>
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                 </button>

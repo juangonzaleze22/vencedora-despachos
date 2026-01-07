@@ -4,6 +4,7 @@ import { despachosService } from '../../services/despachosService';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useAlert } from '../../context/AlertContext';
+import { formatTime12h } from '../../js/utils/dateUtils';
 
 function ReportesModal({ isOpen, onClose }) {
     const [startDate, setStartDate] = useState('');
@@ -89,7 +90,7 @@ function ReportesModal({ isOpen, onClose }) {
             despachos.forEach(ticket => {
                 const dateObj = new Date(ticket.fecha);
                 const dateStr = dateObj.toLocaleDateString();
-                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const timeStr = formatTime12h(ticket.fecha);
 
                 const ticketData = [
                     dateStr,
@@ -236,5 +237,7 @@ function ReportesModal({ isOpen, onClose }) {
         </Modal>
     );
 }
+
+
 
 export default ReportesModal;

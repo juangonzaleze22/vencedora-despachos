@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { despachosService } from '../services/despachosService';
 import { useAuth } from '../context/AuthContext';
 import { useAlert } from '../context/AlertContext';
-import { getVenezuelaDateTime, toVenezuelaISOString, formatVenezuelaDate, formatVenezuelaTime } from '../js/utils/dateUtils';
+import { formatDate, getVenezuelaDateTime, toVenezuelaISOString } from '../js/utils/dateUtils';
 
 function DespachoNuevo() {
     const navigate = useNavigate();
@@ -23,9 +23,21 @@ function DespachoNuevo() {
             telefono: '',
             fecha: fecha,
             hora: hora,
-            status: 'in_progress'
+            status: 'completed'
         };
     });
+
+    const [statusModal, setStatusModal] = useState({
+        isOpen: false,
+        type: 'success',
+        title: '',
+        message: '',
+        onConfirm: null
+    });
+
+    // State for field-specific errors
+    const [fieldError, setFieldError] = useState(false);
+    const idFacturaRef = useRef(null);
 
     const isEditing = !!id;
 
@@ -41,14 +53,27 @@ function DespachoNuevo() {
             const result = await despachosService.getById(id);
             if (result.success) {
                 const data = result.data;
+                // data.fecha viene como "2026-01-06T21:27:00.000Z" o similar
+                const dateObj = new Date(data.fecha);
+
+                const year = dateObj.getFullYear();
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const fechaFormateada = `${year}-${month}-${day}`;
+                // Extraemos la hora en formato HH:mm (24 horas)
+                // Usamos padStart para asegurar los dos dígitos que requiere el input time
+                const horas = String(dateObj.getHours()).padStart(2, '0');
+                const minutos = String(dateObj.getMinutes()).padStart(2, '0');
+                const horaFormateada = `${horas}:${minutos}`;
+
                 setFormData({
                     idFactura: data.idFactura,
                     cliente: data.nombre,
                     descripcion: data.descripcion || '',
                     direccion: data.direccion || '',
                     telefono: data.telefono || '',
-                    fecha: formatVenezuelaDate(data.fecha),
-                    hora: formatVenezuelaTime(data.fecha),
+                    fecha: fechaFormateada,
+                    hora: horaFormateada,
                     status: data.estado
                 });
             } else {
@@ -69,17 +94,22 @@ function DespachoNuevo() {
             ...prev,
             [name]: value
         }));
+
+        // Clear error when user types in the idFactura field
+        if (name === 'idFactura' && fieldError) {
+            setFieldError(false);
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
+        setFieldError(false); // Reset error state
 
         try {
             // Convertir fecha y hora a ISO string con zona horaria de Venezuela
             const fechaISO = toVenezuelaISOString(formData.fecha, formData.hora);
-            console.log("formData.hora", formData.hora);
-            
+
             const despachoData = {
                 ...formData,
                 nombre: formData.cliente,
@@ -97,11 +127,47 @@ function DespachoNuevo() {
 
             if (result.success) {
                 showAlert('success', `Despacho ${isEditing ? 'actualizado' : 'creado'} exitosamente`);
-                setTimeout(() => {
+
+                // Limpiar formulario si es creación
+                if (!isEditing) {
+                    const { fecha, hora } = getVenezuelaDateTime();
+                    setFormData({
+                        idFactura: '',
+                        cliente: '',
+                        descripcion: '',
+                        direccion: '',
+                        telefono: '',
+                        fecha: fecha,
+                        hora: hora,
+                        status: 'completed'
+                    });
+
+                    // Focus back on idFactura for next entry
+                    setTimeout(() => {
+                        if (idFacturaRef.current) {
+                            idFacturaRef.current.focus();
+                        }
+                    }, 100);
+                }
+
+                /* setTimeout(() => {
                     navigate('/despachos');
-                }, 1500);
+                }, 1500); */
             } else {
-                showAlert('error', result.error || `Error al ${isEditing ? 'actualizar' : 'crear'} despacho`);
+                const errorMsg = result.error || `Error al ${isEditing ? 'actualizar' : 'crear'} despacho`;
+                showAlert('error', errorMsg);
+
+                // Check for duplicate ID error
+                if (errorMsg.toLowerCase().includes('duplicate') ||
+                    errorMsg.toLowerCase().includes('existe') ||
+                    errorMsg.toLowerCase().includes('unique')) {
+                    setFieldError(true);
+                    setTimeout(() => {
+                        if (idFacturaRef.current) {
+                            idFacturaRef.current.focus();
+                        }
+                    }, 100);
+                }
             }
         } catch (error) {
             console.error('Error:', error);
@@ -144,12 +210,14 @@ function DespachoNuevo() {
                                     type="text"
                                     id="idFactura"
                                     name="idFactura"
+                                    ref={idFacturaRef}
                                     value={formData.idFactura}
                                     onChange={handleChange}
-                                    className="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    className={`bg-gray-50 dark:bg-gray-700 border text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ${fieldError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                                     placeholder="Número de factura"
                                     required
                                     disabled={saving}
+                                    autoFocus
                                 />
                             </div>
                             <div>
@@ -270,6 +338,7 @@ function DespachoNuevo() {
                                     onChange={handleChange}
                                     className="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     disabled={saving}
+
                                 />
                             </div>
                         </div>
