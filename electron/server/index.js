@@ -154,27 +154,37 @@ if (import.meta.url === `file://${process.argv[1]}` || process.env.RUN_SERVER_DI
   });
 }
 
-// Manejar cierre limpio
-process.on('SIGINT', () => {
-  console.log('\n🛑 Cerrando servidor...');
+// Cierre limpio: guardar DB pendiente y cerrar conexiones
+function gracefulShutdown(signal) {
+  console.log(`\n🛑 Señal ${signal} recibida, cerrando servidor...`);
   if (db) {
     db.close();
+    console.log('✅ Base de datos guardada y cerrada');
   }
   httpServer.close(() => {
     console.log('✅ Servidor cerrado correctamente');
     process.exit(0);
   });
+  // Forzar cierre si no responde en 5 segundos
+  setTimeout(() => process.exit(1), 5000).unref();
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// Capturar cierre inesperado: intentar guardar la DB antes de morir
+process.on('exit', () => {
+  if (db) {
+    try { db.flushSave(); } catch (_) {}
+  }
 });
 
-process.on('SIGTERM', () => {
-  console.log('\n🛑 Cerrando servidor...');
+process.on('uncaughtException', (err) => {
+  console.error('❌ Excepción no capturada:', err.message);
   if (db) {
-    db.close();
+    try { db.flushSave(); } catch (_) {}
   }
-  httpServer.close(() => {
-    console.log('✅ Servidor cerrado correctamente');
-    process.exit(0);
-  });
+  process.exit(1);
 });
 
 // Exportar función para uso en Electron main process

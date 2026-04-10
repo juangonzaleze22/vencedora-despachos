@@ -1,6 +1,6 @@
 {
   "name": "vencedora-despachos",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Aplicación de escritorio para gestión de despachos",
   "main": "electron/main.js",
   "type": "module",
